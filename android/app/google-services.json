@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "146231892644",
+    "project_id": "sparepark-d7804",
+    "storage_bucket": "sparepark-d7804.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146231892644:android:bfcf2d68e15bff2327a431",
+        "android_client_info": {
+          "package_name": "com.example.sparepark"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "146231892644-hvjudsp288rqf5pm8idb85o9s47s4ecm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEzUWLtd5AmJdm-rgoI982TAwimB1hRD4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "146231892644-hvjudsp288rqf5pm8idb85o9s47s4ecm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "146231892644-lteo92h1kc37g32q6q7qlbt4khp1taum.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sparePark"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
