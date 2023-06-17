@@ -1,4 +1,3 @@
-import 'package:auth_buttons/auth_buttons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter_platform_interface/src/types/location.dart';
@@ -371,44 +370,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ],
               ),
               SizedBox(height: 50),
-              // Padding(
-              //     padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
-              //     child: Center(
-              //       child: GoogleAuthButton(
-              //         onPressed: () async {
-              //           if (widget.routePage == 'booking_page') {
-              //             await signInFunction(
-              //               context,
-              //               widget.routePage,
-              //               startDateTime: widget.startdatetime!,
-              //               endDateTime: widget.enddatetime!,
-              //               cpsId: widget.cpsId!,
-              //               address: widget.address,
-              //               postcode: widget.postcode,
-              //               image: widget.image,
-              //             );
-              //           } else {
-              //             if (widget.u_id != null) {
-              //               await signInFunc(context, widget.u_id!);
-              //             }
-              //             await signInFunc(context);
-              //           }
-              //         },
-              //         text: "Sign up with Google",
-              //         style: AuthButtonStyle(
-              //           width: 350,
-              //           height: 60,
-              //           iconType: AuthIconType.outlined,
-              //           buttonColor: Colors.white,
-              //           textStyle: TextStyle(
-              //             fontSize: 12,
-              //             color: Colors.black,
-              //           ),
-              //         ),
-              //       ),
-              //     )
-              //     )
-                Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(15, 0, 15, 30),
                 child: Center(
                   child: ElevatedButton(

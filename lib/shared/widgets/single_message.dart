@@ -26,7 +26,7 @@ class SingleMessage extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: isMe
-                  ? Theme.of(context).accentColor
+                  ? Theme.of(context).colorScheme.secondary
                   : Theme.of(context).textTheme.bodyText1!.color,
             ),
           ),

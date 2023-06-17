@@ -14,7 +14,6 @@ import 'package:sparepark/models/car_park_space.dart';
 import 'package:sparepark/shared/auth_service.dart';
 import 'package:sparepark/shared/carpark_space_db_helper.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:auth_buttons/auth_buttons.dart';
 import 'package:sparepark/shared/functions.dart';
 import 'package:sparepark/shared/style/contstants.dart';
 import 'package:sparepark/shared/widgets/loginDialog.dart';

@@ -11,7 +11,6 @@ import 'package:sparepark/models/car_park_space.dart';
 import 'package:sparepark/shared/auth_service.dart';
 import 'package:sparepark/shared/carpark_space_db_helper.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:auth_buttons/auth_buttons.dart';
 import 'package:sparepark/shared/functions.dart';
 import 'package:sparepark/shared/style/contstants.dart';
 import 'package:sparepark/shared/widgets/loginDialog.dart';
@@ -229,22 +228,48 @@ class _RegisterParkingSpaceState extends State<RegisterParkingSpace> {
                             children: [
                               Row(
                                 children: [
-                                  Expanded(
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
                                     child: Center(
-                                      child: GoogleAuthButton(
+                                      child: ElevatedButton(
                                         onPressed: () async {
                                           await signInFunction();
                                         },
-                                        text: "Sign up with Google",
-                                        style: AuthButtonStyle(
-                                          width: 250,
-                                          height: 50,
-                                          iconType: AuthIconType.outlined,
-                                          buttonColor: Colors.white,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: Colors.black,
+                                          minimumSize: Size(150, 60),
                                           textStyle: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.black,
                                           ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side:
+                                                BorderSide(color: Colors.black),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/google.png', // Replace with the path to your local asset image
+                                              width: 24,
+                                              height: 24,
+                                              errorBuilder:
+                                                  (BuildContext context,
+                                                      Object exception,
+                                                      StackTrace? stackTrace) {
+                                                print(
+                                                    'Error loading image: $exception');
+                                                return const Text(
+                                                    'Error loading image'); // Display a text error message instead of an icon
+                                              },
+                                            ),
+                                            SizedBox(width: 10),
+                                            Text("Sign In with Google"),
+                                          ],
                                         ),
                                       ),
                                     ),

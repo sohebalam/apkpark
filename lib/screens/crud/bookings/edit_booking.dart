@@ -3,7 +3,6 @@ import 'package:custom_map_markers/custom_map_markers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -265,60 +264,96 @@ class _EditBookingState extends State<EditBooking> {
                                       border: InputBorder.none,
                                       // labelText: 'Start Date',
                                     ),
-                                    onTap: () {
-                                      DatePicker.showDateTimePicker(
-                                        context,
-                                        showTitleActions: true,
-                                        minTime: DateTime.now(),
-                                        maxTime: DateTime(2100),
-                                        onChanged: (date) {},
-                                        onConfirm: (date) {
+                                    onTap: () async {
+                                      final DateTime? picked =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now()
+                                                .isBefore(widget.startDateTime)
+                                            ? widget.startDateTime
+                                            : DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime.now()
+                                            .add(Duration(days: 365)),
+                                      );
+
+                                      if (picked != null) {
+                                        final TimeOfDay? pickedTime =
+                                            await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.fromDateTime(
+                                              widget.startDateTime),
+                                        );
+
+                                        if (pickedTime != null) {
                                           setState(() {
-                                            widget.startDateTime = date;
+                                            widget.startDateTime = DateTime(
+                                              picked.year,
+                                              picked.month,
+                                              picked.day,
+                                              pickedTime.hour,
+                                              pickedTime.minute,
+                                            );
                                             startDateController.text =
                                                 DateFormat('HH:mm dd MMM yy')
-                                                    .format(date);
+                                                    .format(
+                                                        widget.startDateTime);
 
                                             // Set the endDateTime as one hour after the startDateTime
-                                            widget.endDateTime =
-                                                date.add(Duration(hours: 1));
+                                            widget.endDateTime = widget
+                                                .startDateTime
+                                                .add(Duration(hours: 1));
                                             endDateController.text =
                                                 DateFormat('HH:mm dd MMM yy')
                                                     .format(widget.endDateTime);
                                           });
-                                        },
-                                        currentTime: widget.startDateTime,
-                                        locale: LocaleType.en,
-                                      );
+                                        }
+                                      }
                                     },
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    DatePicker.showDateTimePicker(
-                                      context,
-                                      showTitleActions: true,
-                                      minTime: DateTime.now(),
-                                      maxTime: DateTime(2100),
-                                      onChanged: (date) {},
-                                      onConfirm: (date) {
+                                  onTap: () async {
+                                    final DateTime? picked =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: widget.startDateTime,
+                                      firstDate: widget.startDateTime,
+                                      lastDate: DateTime.now()
+                                          .add(Duration(days: 365)),
+                                    );
+
+                                    if (picked != null) {
+                                      final TimeOfDay? pickedTime =
+                                          await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.fromDateTime(
+                                            widget.startDateTime),
+                                      );
+
+                                      if (pickedTime != null) {
                                         setState(() {
-                                          widget.startDateTime = date;
+                                          widget.startDateTime = DateTime(
+                                            picked.year,
+                                            picked.month,
+                                            picked.day,
+                                            pickedTime.hour,
+                                            pickedTime.minute,
+                                          );
                                           startDateController.text =
                                               DateFormat('HH:mm dd MMM yy')
-                                                  .format(date);
+                                                  .format(widget.startDateTime);
 
                                           // Set the endDateTime as one hour after the startDateTime
-                                          widget.endDateTime =
-                                              date.add(Duration(hours: 1));
+                                          widget.endDateTime = widget
+                                              .startDateTime
+                                              .add(Duration(hours: 1));
                                           endDateController.text =
                                               DateFormat('HH:mm dd MMM yy')
                                                   .format(widget.endDateTime);
                                         });
-                                      },
-                                      currentTime: widget.startDateTime,
-                                      locale: LocaleType.en,
-                                    );
+                                      }
+                                    }
                                   },
                                   child: Icon(Icons.keyboard_arrow_down),
                                 ),
@@ -350,24 +385,37 @@ class _EditBookingState extends State<EditBooking> {
                             padding: EdgeInsets.symmetric(
                                 vertical: 0, horizontal: 16),
                             child: GestureDetector(
-                              onTap: () {
-                                DatePicker.showDateTimePicker(
-                                  context,
-                                  showTitleActions: true,
-                                  minTime: DateTime.now(),
-                                  maxTime: DateTime(2100),
-                                  onChanged: (date) {},
-                                  onConfirm: (date) {
+                              onTap: () async {
+                                final DateTime? picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: widget.endDateTime,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime(2100),
+                                );
+
+                                if (picked != null) {
+                                  final TimeOfDay? pickedTime =
+                                      await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.fromDateTime(
+                                        widget.endDateTime),
+                                  );
+
+                                  if (pickedTime != null) {
                                     setState(() {
-                                      widget.endDateTime = date;
+                                      widget.endDateTime = DateTime(
+                                        picked.year,
+                                        picked.month,
+                                        picked.day,
+                                        pickedTime.hour,
+                                        pickedTime.minute,
+                                      );
                                       endDateController.text =
                                           DateFormat('HH:mm dd MMM yy')
-                                              .format(date);
+                                              .format(widget.endDateTime);
                                     });
-                                  },
-                                  currentTime: widget.endDateTime,
-                                  locale: LocaleType.en,
-                                );
+                                  }
+                                }
                               },
                               child: Row(
                                 children: [
@@ -378,14 +426,78 @@ class _EditBookingState extends State<EditBooking> {
                                         border: InputBorder.none,
                                         // labelText: 'End Date',
                                       ),
-                                      onTap: () {
-                                        showDateTimePicker(endDateController);
+                                      onTap: () async {
+                                        final DateTime? picked =
+                                            await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now()
+                                                  .isBefore(widget.endDateTime)
+                                              ? widget.endDateTime
+                                              : DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100),
+                                        );
+
+                                        if (picked != null) {
+                                          final TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                            context: context,
+                                            initialTime: TimeOfDay.fromDateTime(
+                                                widget.endDateTime),
+                                          );
+
+                                          if (pickedTime != null) {
+                                            setState(() {
+                                              widget.endDateTime = DateTime(
+                                                picked.year,
+                                                picked.month,
+                                                picked.day,
+                                                pickedTime.hour,
+                                                pickedTime.minute,
+                                              );
+                                              endDateController.text =
+                                                  DateFormat('HH:mm dd MMM yy')
+                                                      .format(
+                                                          widget.endDateTime);
+                                            });
+                                          }
+                                        }
                                       },
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () {
-                                      showDateTimePicker(endDateController);
+                                    onTap: () async {
+                                      final DateTime? picked =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: widget.endDateTime,
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2100),
+                                      );
+
+                                      if (picked != null) {
+                                        final TimeOfDay? pickedTime =
+                                            await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.fromDateTime(
+                                              widget.endDateTime),
+                                        );
+
+                                        if (pickedTime != null) {
+                                          setState(() {
+                                            widget.endDateTime = DateTime(
+                                              picked.year,
+                                              picked.month,
+                                              picked.day,
+                                              pickedTime.hour,
+                                              pickedTime.minute,
+                                            );
+                                            endDateController.text =
+                                                DateFormat('HH:mm dd MMM yy')
+                                                    .format(widget.endDateTime);
+                                          });
+                                        }
+                                      }
                                     },
                                     child: Icon(Icons.keyboard_arrow_down),
                                   ),
@@ -466,24 +578,6 @@ class _EditBookingState extends State<EditBooking> {
           ),
         ),
       ],
-    );
-  }
-
-  void showDateTimePicker(TextEditingController controller) {
-    DatePicker.showDateTimePicker(
-      context,
-      showTitleActions: true,
-      minTime: DateTime.now(),
-      maxTime: DateTime(2100),
-      onChanged: (date) {},
-      onConfirm: (date) {
-        setState(() {
-          widget.endDateTime = date;
-          controller.text = DateFormat('HH:mm dd MMM yy').format(date);
-        });
-      },
-      currentTime: widget.endDateTime,
-      locale: LocaleType.en,
     );
   }
 }

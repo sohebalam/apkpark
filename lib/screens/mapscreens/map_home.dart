@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -22,10 +23,6 @@ class MapHome extends StatefulWidget {
 
 class _MapHomeState extends State<MapHome> {
   late GoogleMapController mapController;
-  // DateTime? _selectedDateTimeStart;
-  // DateTime? _selectedDateTimeEnd;
-
-  // Initialize selected start and end datetimes with rounded current time
   DateTime _selectedDateTimeStart = roundToNearest15Minutes(DateTime.now());
   DateTime _selectedDateTimeEnd =
       roundToNearest15Minutes(DateTime.now().add(const Duration(hours: 1)));
@@ -33,22 +30,19 @@ class _MapHomeState extends State<MapHome> {
   LatLng _currentPosition = const LatLng(0, 0);
   bool _isLoading = true;
   String? _selectedOption;
-  final _placesApiClient = GoogleMapsPlaces(apiKey: 'AIzaSyCY8J7h0Q-5Q1UDP9aY0EOy_WZBPESNBBg');
+  final _placesApiClient =
+      GoogleMapsPlaces(apiKey: 'AIzaSyCY8J7h0Q-5Q1UDP9aY0EOy_WZBPESNBBg');
   String _searchTerm = '';
   LatLng? location;
 
   @override
   void initState() {
     super.initState();
-    getLocation(); // Get user's current location
-    _selectedOption = 'Current Location'; // Set default selected option
+    getLocation();
+    _selectedOption = 'Current Location';
   }
 
-  void retrieveNearestSpaces(
-    double? latitude,
-    double? longitude,
-  ) async {
-    // Retrieve nearest parking spaces based on longitude and latitude
+  void retrieveNearestSpaces(double? latitude, double? longitude) async {
     final nearestSpaces = await DB_CarPark.getNearestSpaces(
       latitude: latitude,
       longitude: longitude,
@@ -56,7 +50,6 @@ class _MapHomeState extends State<MapHome> {
 
     List<List<dynamic>> results = [];
     for (var space in nearestSpaces) {
-      // Add space information to the results list
       results.add([
         space.p_id,
         space.latitude,
@@ -69,13 +62,18 @@ class _MapHomeState extends State<MapHome> {
       ]);
     }
 
-    // Navigate to the results page with relevant data
+    List<List<dynamic>> filteredResults = await filterBookings(
+      results,
+      _selectedDateTimeStart,
+      _selectedDateTimeEnd,
+    );
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ResultsPage(
           location: LatLng(latitude!, longitude!),
-          results: results,
+          results: filteredResults,
           latitude: _currentPosition.latitude,
           longitude: _currentPosition.longitude,
           startdatetime: _selectedDateTimeStart,
@@ -85,7 +83,6 @@ class _MapHomeState extends State<MapHome> {
     );
   }
 
-  // Get user's current location
   getLocation() async {
     LocationPermission permission;
     permission = await Geolocator.requestPermission();
@@ -109,7 +106,6 @@ class _MapHomeState extends State<MapHome> {
 
   List<Prediction> _predictions = [];
 
-  // Handle dropdown selection change
   void _onDropdownChanged(String? value) {
     setState(() {
       _selectedOption = value;
@@ -121,7 +117,6 @@ class _MapHomeState extends State<MapHome> {
     }
   }
 
-  // Handle search text field value change
   void _onSearchChanged(String value) async {
     if (value.isNotEmpty) {
       setState(() {
@@ -129,7 +124,6 @@ class _MapHomeState extends State<MapHome> {
         _searchTerm = value;
       });
 
-      // Autocomplete search term using Google Places API
       PlacesAutocompleteResponse response =
           await _placesApiClient.autocomplete(_searchTerm);
 
@@ -144,9 +138,7 @@ class _MapHomeState extends State<MapHome> {
     }
   }
 
-  // Handle prediction selection from the search results
   void _onPredictionSelected(Prediction prediction) async {
-    // Get detailed information about the selected place
     PlacesDetailsResponse details =
         await _placesApiClient.getDetailsByPlaceId(prediction.placeId ?? "");
 
@@ -196,23 +188,35 @@ class _MapHomeState extends State<MapHome> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    // Show date-time picker for selecting start date and time
-                    DatePicker.showDateTimePicker(
-                      context,
-                      showTitleActions: true,
-                      minTime: DateTime.now(),
-                      maxTime: DateTime.now().add(Duration(days: 365)),
-                      onChanged: (date) {},
-                      onConfirm: (date) {
-                        setState(() {
-                          _selectedDateTimeStart = date;
-                          _selectedDateTimeEnd = date.add(Duration(hours: 1));
-                        });
-                      },
-                      currentTime: _selectedDateTimeStart,
-                      locale: LocaleType.en,
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDateTimeStart,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
                     );
+
+                    if (picked != null) {
+                      final TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime:
+                            TimeOfDay.fromDateTime(_selectedDateTimeStart),
+                      );
+
+                      if (pickedTime != null) {
+                        setState(() {
+                          _selectedDateTimeStart = DateTime(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+                          _selectedDateTimeEnd =
+                              _selectedDateTimeStart.add(Duration(hours: 1));
+                        });
+                      }
+                    }
                   },
                   child: Column(
                     children: [
@@ -234,10 +238,8 @@ class _MapHomeState extends State<MapHome> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              _selectedDateTimeStart != null
-                                  ? DateFormat('hh:mm a dd/MM/yy')
-                                      .format(_selectedDateTimeStart)
-                                  : 'Start',
+                              DateFormat('hh:mm a dd/MM/yy')
+                                  .format(_selectedDateTimeStart),
                             ),
                             Icon(Icons.keyboard_arrow_down),
                           ],
@@ -247,22 +249,33 @@ class _MapHomeState extends State<MapHome> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    // Show date-time picker for selecting end date and time
-                    DatePicker.showDateTimePicker(
-                      context,
-                      showTitleActions: true,
-                      minTime: DateTime.now(),
-                      maxTime: DateTime.now().add(Duration(days: 365)),
-                      onChanged: (date) {},
-                      onConfirm: (date) {
-                        setState(() {
-                          _selectedDateTimeEnd = date;
-                        });
-                      },
-                      currentTime: _selectedDateTimeEnd,
-                      locale: LocaleType.en,
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDateTimeEnd,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
                     );
+
+                    if (picked != null) {
+                      final TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime:
+                            TimeOfDay.fromDateTime(_selectedDateTimeEnd),
+                      );
+
+                      if (pickedTime != null) {
+                        setState(() {
+                          _selectedDateTimeEnd = DateTime(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+                        });
+                      }
+                    }
                   },
                   child: Column(
                     children: [
@@ -284,10 +297,8 @@ class _MapHomeState extends State<MapHome> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              _selectedDateTimeEnd != null
-                                  ? DateFormat('hh:mm a dd/MM/yy')
-                                      .format(_selectedDateTimeEnd)
-                                  : 'End',
+                              DateFormat('hh:mm a dd/MM/yy')
+                                  .format(_selectedDateTimeEnd),
                             ),
                             Icon(Icons.keyboard_arrow_down),
                           ],
@@ -349,4 +360,25 @@ class _MapHomeState extends State<MapHome> {
       ),
     );
   }
+}
+
+Future<List<List<dynamic>>> filterBookings(List<List<dynamic>> nearestSpaces,
+    DateTime startDateTime, DateTime endDateTime) async {
+  final bookingsSnapshot =
+      await FirebaseFirestore.instance.collection('bookings').get();
+
+  List<List<dynamic>> filteredResults = [];
+
+  for (var space in nearestSpaces) {
+    final matchingBookings = bookingsSnapshot.docs.where((booking) =>
+        booking.data()['p_id'] == space[0] &&
+        booking.data()['start_date_time'].toDate().isBefore(endDateTime) &&
+        booking.data()['end_date_time'].toDate().isAfter(startDateTime));
+
+    if (matchingBookings.isEmpty) {
+      filteredResults.add(space);
+    }
+  }
+
+  return filteredResults;
 }
